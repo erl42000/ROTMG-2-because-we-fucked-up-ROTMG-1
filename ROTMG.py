@@ -38,61 +38,86 @@ class Character:
     def leftWalk(self):
 
         self.lastDirection = "left"
-
         self.leftCounter += 1
+
         if self.leftCounter < 10:
+            
             self.characterSprite = pygame.image.load("ArcherWalkLeft1.png").convert_alpha()
+            
         elif self.leftCounter < 20:
+            
             self.characterSprite = pygame.image.load("ArcherWalkLeft2.png").convert_alpha()
+            
         else:
+            
             self.leftCounter = 0
 
     def rightWalk(self):
 
         self.lastDirection = "right"
-
         self.rightCounter += 1
+        
         if self.rightCounter < 10:
+            
             self.characterSprite = pygame.image.load("ArcherWalkRight1.png").convert_alpha()
+            
         elif self.rightCounter < 20:
+            
             self.characterSprite = pygame.image.load("ArcherWalkRight2.png").convert_alpha()
+            
         else:
+            
             self.rightCounter = 0
 
     def upWalk(self):
 
         self.lastDirection = "up"
-
         self.upCounter += 1
+        
         if self.upCounter < 10:
+            
             self.characterSprite = pygame.image.load("ArcherWalkUp1.png").convert_alpha()
+            
         elif self.upCounter < 20:
+            
             self.characterSprite = pygame.image.load("ArcherWalkUp2.png").convert_alpha()
+            
         else:
+            
             self.upCounter = 0
 
     def downWalk(self):
 
         self.lastDirection = "down"
-
         self.downCounter += 1
+        
         if self.downCounter < 10:
+            
             self.characterSprite = pygame.image.load("ArcherWalkDown1.png").convert_alpha()
+            
         elif self.downCounter < 20:
+            
             self.characterSprite = pygame.image.load("ArcherWalkDown2.png").convert_alpha()
+            
         else:
+            
             self.downCounter = 0
-
+            
     def leftShoot(self):
 
         self.lastDirection = "left"
-
         self.leftCounter += 1
+        
         if self.leftCounter < 10:
+            
             self.characterSprite = pygame.image.load("ArcherShootLeft1.png").convert_alpha()
+            
         elif self.leftCounter < 20:
+            
             self.characterSprite = pygame.image.load("ArcherShootLeft2.png").convert_alpha()
+            
         else:
+            
             self.leftCounter = 0
 
     def rightShoot(self):
@@ -100,38 +125,55 @@ class Character:
         self.lastDirection = "right"
 
         self.rightCounter += 1
+        
         if self.rightCounter < 10:
+            
             self.characterSprite = pygame.image.load("ArcherShootRight1.png").convert_alpha()
+            
         elif self.rightCounter < 20:
+            
             self.characterSprite = pygame.image.load("ArcherShootRight2.png").convert_alpha()
+            
         else:
+            
             self.rightCounter = 0
 
     def upShoot(self):
 
         self.lastDirection = "up"
-
         self.upCounter += 1
+
         if self.upCounter < 10:
+            
             self.characterSprite = pygame.image.load("ArcherShootUp1.png").convert_alpha()
+            
         elif self.upCounter < 20:
+            
             self.characterSprite = pygame.image.load("ArcherShootUp2.png").convert_alpha()
+            
         else:
+            
             self.upCounter = 0
 
     def downShoot(self):
 
         self.lastDirection = "down"
-
         self.downCounter += 1
+        
         if self.downCounter < 10:
+            
             self.characterSprite = pygame.image.load("ArcherShootDown1.png").convert_alpha()
+            
         elif self.downCounter < 20:
+            
             self.characterSprite = pygame.image.load("ArcherShootDown2.png").convert_alpha()
+            
         else:
+            
             self.downCounter = 0
 
     def release(self):
+        
         self.leftCounter = 0
         self.rightCounter = 0
         self.downCounter = 0
@@ -176,8 +218,10 @@ tileList    = [black, white, grey, red, green, blue]
 sidebar      = 600, 0, 200, 800
 healthbar    = 610, 150, 180, 20
 character    = Character()
-characterXY  = 275, 275, 50, 50
+characterXY  = 275, 275
 characterXYHitbox  = 285, 285, 30, 30
+enemyXY = 100, 100
+enemyXYHitbox = 90, 90, 90, 90
 
 tileLength   = 50
 
@@ -190,8 +234,12 @@ lastClick    = -60
 
 projectileList  = []
 
-
-projectileImage = pygame.image.load("Arrow.PNG").convert_alpha()
+enemySprite1 = pygame.image.load("Occulusion1.PNG").convert_alpha()
+enemySprite2 = pygame.image.load("Occulusion2.PNG").convert_alpha()
+enemySprite3 = pygame.image.load("Occulusion3.PNG").convert_alpha()
+enemySprite4 = pygame.image.load("Occulusion2.PNG").convert_alpha()
+currentEnemySprite = enemySprite1
+projectileSprite = pygame.image.load("Arrow.PNG").convert_alpha()
 
 map_ = open("ROTMG_Map.txt", "r")
 mapList = [line.rstrip('\n') for line in map_]
@@ -304,20 +352,13 @@ while not ended:
 
             projectile = Projectile(angle, lifespan, x, y, xOffset, yOffset)
 
-            #projectile.append(angle)
-            #projectile.append(lifespan)
-            #projectile.append(x)
-            #projectile.append(y)
-            #projectile.append(xOffset)
-            #projectile.append(yOffset)
-
             projectileList.append(projectile)
 
     for i in projectileList:
 
         if i.lifespan <= 25:
         
-            screen.blit(pygame.transform.rotate(projectileImage, (i.angle - 3*pi/4) * (-180/pi)), (int(i.x - 30), int(i.y - 30)))
+            screen.blit(pygame.transform.rotate(projectileSprite, (i.angle - 3*pi/4) * (-180/pi)), (int(i.x - 30), int(i.y - 30)))
 
         pygame.draw.circle(collision, red, (int(i.x), int(i.y)), 8)
 
@@ -380,10 +421,28 @@ while not ended:
 
         character.release()
 
+    if frame % 60 == 0:
+
+        currentEnemySprite = enemySprite1
+
+    elif frame % 60 == 15:
+
+        currentEnemySprite = enemySprite2
+
+    elif frame % 60 == 30:
+
+        currentEnemySprite = enemySprite3
+
+    elif frame % 60 == 45:
+
+        currentEnemySprite = enemySprite4
+
     pygame.draw.rect(screen, grey, sidebar)
     pygame.draw.rect(screen, red, healthbar)
     pygame.draw.rect(collision, grey, characterXYHitbox)
+    pygame.draw.rect(collision, grey, enemyXYHitbox)
     screen.blit(character.characterSprite, characterXY)
+    screen.blit(currentEnemySprite, enemyXY)
 
     for event in pygame.event.get():
 
@@ -394,6 +453,8 @@ while not ended:
     pygame.display.flip()
 
     sleep(1.0/60)
+
+   
 
     frame += 1
 
