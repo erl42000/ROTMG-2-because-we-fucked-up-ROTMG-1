@@ -20,6 +20,7 @@ class Character:
         self.rightCounter = 0
         self.upCounter = 0
         self.downCounter = 0
+        self.lastDirection = "right"
         self.characterSprite = pygame.image.load("ArcherWalkRight1.png").convert_alpha()
 
     #def __init__(self, hp, mp, deff, vit, wis, dex, att, spd):
@@ -34,9 +35,21 @@ class Character:
 
     #def shoot():
     #    pass
+            
+    def rightWalk(self):
+        
+        self.lastDirection = "right"
+        self.rightCounter += 1
+        if self.rightCounter < 10:
+            self.characterSprite = pygame.image.load("ArcherWalkRight1.png").convert_alpha()
+        elif self.rightCounter < 20:
+            self.characterSprite = pygame.image.load("ArcherWalkRight2.png").convert_alpha()
+        else:
+            self.rightCounter = 0
 
     def leftWalk(self):
         
+        self.lastDirection = "left"
         self.leftCounter += 1
         if self.leftCounter < 10:
             self.characterSprite = pygame.image.load("ArcherWalkLeft1.png").convert_alpha()
@@ -45,18 +58,9 @@ class Character:
         else:
             self.leftCounter = 0
             
-    def rightWalk(self):
-        
-        self.rightCounter += 1
-        if self.rightCounter < 10:
-            self.characterSprite = pygame.image.load("ArcherWalkRight1.png").convert_alpha()
-        elif self.rightCounter < 20:
-            self.characterSprite = pygame.image.load("ArcherWalkRight2.png").convert_alpha()
-        else:
-            self.rightCounter = 0
-            
     def upWalk(self):
         
+        self.lastDirection = "up"
         self.upCounter += 1
         if self.upCounter < 10:
             self.characterSprite = pygame.image.load("ArcherWalkUp1.png").convert_alpha()
@@ -67,6 +71,7 @@ class Character:
             
     def downWalk(self):
         
+        self.lastDirection = "down"
         self.downCounter += 1
         if self.downCounter < 10:
             self.characterSprite = pygame.image.load("ArcherWalkDown1.png").convert_alpha()
@@ -120,7 +125,22 @@ class Character:
         self.rightCounter = 0
         self.downCounter = 0
         self.upCounter = 0
-        self.characterSprite = pygame.image.load("ArcherWalkRight1.png").convert_alpha()
+
+        if self.lastDirection == "right":
+            
+            self.characterSprite = pygame.image.load("ArcherWalkRight1.png").convert_alpha()
+
+        elif self.lastDirection == "left":
+            
+            self.characterSprite = pygame.image.load("ArcherWalkLeft1.png").convert_alpha()
+
+        elif self.lastDirection == "up":
+            
+            self.characterSprite = pygame.image.load("ArcherWalkUp1.png").convert_alpha()
+    
+        elif self.lastDirection == "down":
+            
+            self.characterSprite = pygame.image.load("ArcherWalkDown1.png").convert_alpha()
 
 
 red          = (255,  0,  0)
@@ -283,6 +303,62 @@ while not ended:
         if i[1] <= 0:
 
             projectileList.remove(i)
+
+    if pygame.mouse.get_pressed()[0]:
+
+        mouseX, mouseY = pygame.mouse.get_pos()
+
+        if mouseY - 300 >= abs(mouseX - 300):
+
+            character.downShoot()
+        
+        elif mouseX - 300 >= abs(mouseY - 300):
+
+            character.rightShoot()
+
+        elif -mouseY + 300 >= abs(mouseX - 300):
+
+            character.upShoot()
+
+        elif -mouseX + 300 >= abs(mouseY - 300):
+
+            character.leftShoot()
+
+    elif keyDown[pygame.K_w] and keyDown[pygame.K_a]:
+
+        pass
+
+    elif keyDown[pygame.K_w] and keyDown[pygame.K_d]:
+
+        pass
+
+    elif keyDown[pygame.K_s] and keyDown[pygame.K_a]:
+
+        pass
+
+    elif keyDown[pygame.K_s] and keyDown[pygame.K_d]:
+
+        pass
+
+    elif keyDown[pygame.K_w]:
+
+        pass
+
+    elif keyDown[pygame.K_s]:
+
+        pass
+
+    elif keyDown[pygame.K_a]:
+
+        pass
+
+    elif keyDown[pygame.K_d]:
+
+        pass
+
+    else:
+
+        character.release()
 
     pygame.draw.rect(screen, grey, sidebar)
     screen.blit(character.characterSprite, characterXY)
