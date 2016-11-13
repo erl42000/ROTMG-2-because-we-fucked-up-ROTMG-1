@@ -215,13 +215,16 @@ grey         = (127,127,127)
 
 tileList    = [black, white, grey, red, green, blue]
 
-sidebar      = 600, 0, 200, 800
-healthbar    = 610, 150, 180, 20
+sidebar      = [600, 0, 200, 800]
+healthbar    = [610, 150, 180, 20]
 character    = Character()
-characterXY  = 275, 275
-characterXYHitbox  = 275, 275, 50, 50
-enemyXY = 100, 100
-enemyXYHitbox = 100, 100, 100, 100
+characterXY  = [275, 275]
+characterXYHitbox  = [275, 275, 50, 50]
+enemyXY = [100, 100]
+enemyXYHitbox = [100, 100, 100, 100]
+
+enemyXOffset = 0
+enemyYOffset = 0
 
 tileLength   = 50
 
@@ -287,33 +290,65 @@ while not ended:
 
         yPos = max(0, yPos - 5)
 
-        for i in projectileList:
-            
-            i.yOffset = i.yOffset - 5
+        if yPos <= 0:
+
+            enemyYOffset = 0
+
+        else:
+
+            for i in projectileList:
+                
+                i.yOffset = i.yOffset - 5
+
+            enemyYOffset -= 5
             
     if keyDown[pygame.K_s]:
 
         yPos = min(mapHeight, yPos + 5)
 
-        for i in projectileList:
-            
-            i.yOffset = i.yOffset + 5
+        if yPos >= len(mapList[0]) * 50:
+
+            enemyYOffset = 0
+
+        else:
+
+            for i in projectileList:
+                    
+                i.yOffset = i.yOffset + 5
+
+            enemyYOffset += 5
             
     if keyDown[pygame.K_a]:
 
         xPos = max(0, xPos - 5)
 
-        for i in projectileList:
-            
+        if xPos <= 0:
+
+            enemyXOffset = 0
+
+        else:
+
+            for i in projectileList:
+                    
                 i.xOffset = i.xOffset - 5
+
+            enemyXOffset -= 5
 
     if keyDown[pygame.K_d]:
 
         xPos = min(mapWidth, xPos + 5)
 
-        for i in projectileList:
-            
-            i.xOffset = i.xOffset + 5
+        if xPos >= len(mapList) * 50:
+
+            enemyXOffset = 0
+
+        else:
+
+            for i in projectileList:
+                    
+                i.xOffset = i.xOffset + 5
+
+            enemyXOffset += 5
     
     if keyDown[pygame.K_SPACE]:
 
@@ -356,7 +391,7 @@ while not ended:
 
     for i in projectileList:
 
-        hitbox = pygame.Rect(i.x,i.y,5,5)
+        hitbox = pygame.Rect(i.x, i.y, 5, 5)
 
         if hitbox.colliderect(enemyXYHitbox) == True:
 
@@ -366,7 +401,7 @@ while not ended:
 
             if i.lifespan <= 25:
             
-                screen.blit(pygame.transform.rotate(projectileSprite, (i.angle - 3*pi/4) * (-180/pi)), (int(i.x - 30), int(i.y - 30)))
+                screen.blit(pygame.transform.rotate(projectileSprite, (i.angle - 3 * pi/4) * (-180/pi)), (int(i.x - 30), int(i.y - 30)))
 
             pygame.draw.rect(collision, red, (int(i.x), int(i.y), 5, 5))
 
@@ -445,12 +480,20 @@ while not ended:
 
         currentEnemySprite = enemySprite2
 
+    enemyXY[0] -= enemyXOffset
+    enemyXY[1] -= enemyYOffset
+    enemyXYHitbox[0] -= enemyXOffset
+    enemyXYHitbox[1] -= enemyYOffset
+
+    enemyXOffset = 0
+    enemyYOffset = 0
+    
+    screen.blit(character.characterSprite, characterXY)
+    screen.blit(currentEnemySprite, enemyXY)
     pygame.draw.rect(screen, grey, sidebar)
     pygame.draw.rect(screen, red, healthbar)
     pygame.draw.rect(collision, grey, characterXYHitbox)
     pygame.draw.rect(collision, grey, enemyXYHitbox)
-    screen.blit(character.characterSprite, characterXY)
-    screen.blit(currentEnemySprite, enemyXY)
 
     for event in pygame.event.get():
 
@@ -462,8 +505,8 @@ while not ended:
 
     sleep(1.0/60)
 
-   
-
     frame += 1
+
+    print xPos
 
 pygame.quit()
