@@ -10,7 +10,7 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'
 pygame.init()
 pygame.font.init()
 
-screen       = pygame.display.set_mode((800, 600))
+screen = pygame.display.set_mode((800, 600))
 collision = pygame.Surface((800,600), pygame.SRCALPHA)
 collision.fill((255,255,255,128))
 
@@ -38,7 +38,6 @@ class Character:
     def leftWalk(self):
 
         self.lastDirection = "left"
-
 
         self.leftCounter += 1
         if self.leftCounter < 10:
@@ -154,6 +153,17 @@ class Character:
 
             self.characterSprite = pygame.image.load("ArcherNeutralDown.png").convert_alpha()
 
+class Projectile():
+
+    def __init__(self, angle, lifespan, x, y, xOffset, yOffset):
+
+        self.angle    = angle
+        self.lifespan = lifespan
+        self.x        = x
+        self.y        = y
+        self.xOffset  = xOffset
+        self.yOffset  = yOffset
+
 red          = (255,  0,  0)
 green        = (  0,255,  0)
 blue         = (  0,  0,255)
@@ -164,8 +174,10 @@ grey         = (127,127,127)
 tileList    = [black, white, grey, red, green, blue]
 
 sidebar      = 600, 0, 200, 800
+healthbar    = 610, 150, 180, 20
 character    = Character()
 characterXY  = 275, 275, 50, 50
+characterXYHitbox  = 285, 285, 30, 30
 
 tileLength   = 50
 
@@ -215,81 +227,46 @@ while not ended:
 
                 try:
 
-                    pygame.draw.rect(screen, tileList[int(mapList[(xPos / 50) + x][(yPos / 50) + y])], (((x + 6) * tileLength) - (xPos % 50), (((y + 6) * tileLength) - (yPos % 50)), +  tileLength, tileLength))
+                    pygame.draw.rect(screen, tileList[int(mapList[(int(xPos) / 50) + x][(int(yPos) / 50) + y])], (((x + 6) * tileLength) - (xPos % 50), (((y + 6) * tileLength) - (yPos % 50)), +  tileLength, tileLength))
 
                 except IndexError:
 
                     pygame.draw.rect(screen, black, (((x + 6) * tileLength) - (xPos % 50), (((y + 6) * tileLength) - (yPos % 50)), +  tileLength, tileLength))
 
     keyDown = pygame.key.get_pressed()
-
-    keycount = 0
-
+        
     if keyDown[pygame.K_w]:
-        keycount = keycount + 1
-    if keyDown[pygame.K_a]:
-        keycount = keycount + 1
+
+        yPos = max(0, yPos - 5)
+
+        for i in projectileList:
+            
+            i.yOffset = i.yOffset - 5
+            
     if keyDown[pygame.K_s]:
-        keycount = keycount + 1
+
+        yPos = min(mapHeight, yPos + 5)
+
+        for i in projectileList:
+            
+            i.yOffset = i.yOffset + 5
+            
+    if keyDown[pygame.K_a]:
+
+        xPos = max(0, xPos - 5)
+
+        for i in projectileList:
+            
+                i.xOffset = i.xOffset - 5
+
     if keyDown[pygame.K_d]:
-        keycount = keycount + 1
 
-    if keycount == 1 or 3:
-        if keyDown[pygame.K_w]:
+        xPos = min(mapWidth, xPos + 5)
 
-            yPos = max(0, yPos - 5)
-
-            for i in projectileList:
-                i[5] = i[5] - 5
-        if keyDown[pygame.K_s]:
-
-            yPos = min(mapHeight, yPos + 5)
-
-            for i in projectileList:
-                i[5] = i[5] + 5
-        if keyDown[pygame.K_a]:
-
-            xPos = max(0, xPos - 5)
-
-            for i in projectileList:
-                i[4] = i[4] - 5
-
-        if keyDown[pygame.K_d]:
-
-            xPos = min(mapWidth, xPos + 5)
-
-            for i in projectileList:
-                i[4] = i[4] + 5
-    else:
-        if keyDown[pygame.K_s] and keydown[pygame.K_a]:
-            xPos = min(mapWidth, xPos - (5/sqrt(2)))
-            yPos = min(mapWidth, yPos - (5/sqrt(2)))
-
-            for i in projectileList:
-                i[4] = i[4] - (5/sqrt(2))
-                i[5] = i[5] - (5/sqrt(2))
-        if keydown[pygame.K_s] and keydown[pygame.K_d]:
-            xPos = min(mapWidth, xPos + (5/sqrt(2)))
-            yPos = min(mapWidth, yPos - (5/sqrt(2)))
-
-            for i in projectileList:
-                i[4] = i[4] + (5/sqrt(2))
-                i[5] = i[5] - (5/sqrt(2))
-        if keydown[pygame.K_w] and keydown[pygame.K_a]:
-            xPos = min(mapWidth, xPos - (5/sqrt(2)))
-            yPos = min(mapWidth, yPos + (5/sqrt(2)))
-
-            for i in projectileList:
-                i[4] = i[4] - (5/sqrt(2))
-                i[5] = i[5] + (5/sqrt(2))
-        if keydown[pygame.K_w] and keydown[pygame.K_d]:
-            xPos = min(mapWidth, xPos + (5/sqrt(2)))
-            yPos = min(mapWidth, yPos + (5/sqrt(2)))
-
-            for i in projectileList:
-                i[4] = i[4] + (5/sqrt(2))
-                i[5] = i[5] + (5/sqrt(2))
-
+        for i in projectileList:
+            
+            i.xOffset = i.xOffset + 5
+    
     if keyDown[pygame.K_SPACE]:
 
         pass
@@ -301,8 +278,6 @@ while not ended:
         if frame >= lastClick + shotDelay:
 
             lastClick = frame
-
-            projectile = []
 
             xLength = centerX - mouseX
             yLength = centerY - mouseY
@@ -327,31 +302,33 @@ while not ended:
             xOffset = 0
             yOffset = 0
 
-            projectile.append(angle)
-            projectile.append(lifespan)
-            projectile.append(x)
-            projectile.append(y)
-            projectile.append(xOffset)
-            projectile.append(yOffset)
+            projectile = Projectile(angle, lifespan, x, y, xOffset, yOffset)
+
+            #projectile.append(angle)
+            #projectile.append(lifespan)
+            #projectile.append(x)
+            #projectile.append(y)
+            #projectile.append(xOffset)
+            #projectile.append(yOffset)
 
             projectileList.append(projectile)
 
     for i in projectileList:
 
-        if i[1] <= 25:
+        if i.lifespan <= 25:
         
-            screen.blit(pygame.transform.rotate(projectileImage, (i[0] - 3*pi/4) * (-180/pi)), (int(i[2] - 30), int(i[3] - 30)))
+            screen.blit(pygame.transform.rotate(projectileImage, (i.angle - 3*pi/4) * (-180/pi)), (int(i.x - 30), int(i.y - 30)))
 
-        pygame.draw.circle(collision, red, (int(i[2]), int(i[3])), 8)
+        pygame.draw.circle(collision, red, (int(i.x), int(i.y)), 8)
 
-        i[2] -= 10 * cos(i[0]) + i[4]
-        i[3] -= 10 * sin(i[0]) + i[5]
-        i[4] = 0
-        i[5] = 0
+        i.x -= 10 * cos(i.angle) + i.xOffset
+        i.y -= 10 * sin(i.angle) + i.yOffset
+        i.xOffset = 0
+        i.yOffset = 0
 
-        i[1] -= 1
+        i.lifespan -= 1
 
-        if i[1] <= 0:
+        if i.lifespan <= 0:
 
             projectileList.remove(i)
 
@@ -375,6 +352,14 @@ while not ended:
 
             character.leftShoot()
 
+    elif keyDown[pygame.K_w] and keyDown[pygame.K_s]:
+
+        character.release()
+
+    elif keyDown[pygame.K_a] and keyDown[pygame.K_d]:
+
+        character.release()
+
     elif keyDown[pygame.K_a]:
 
         character.leftWalk()
@@ -396,7 +381,8 @@ while not ended:
         character.release()
 
     pygame.draw.rect(screen, grey, sidebar)
-    pygame.draw.rect(collision, grey, (310, 310, 30, 30))
+    pygame.draw.rect(screen, red, healthbar)
+    pygame.draw.rect(collision, grey, characterXYHitbox)
     screen.blit(character.characterSprite, characterXY)
 
     for event in pygame.event.get():
