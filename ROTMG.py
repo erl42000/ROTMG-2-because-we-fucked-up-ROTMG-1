@@ -282,8 +282,14 @@ while not ended:
 
         pygame.draw.circle(screen, red, (int(i[2]), int(i[3])), 8)
 
+<<<<<<< HEAD
         i[2] -= 10 * cos(i[0])
         i[3] -= 10 * sin(i[0])
+=======
+        i[2] -= 10 * cos(i[0]) + xPos
+        i[3] -= 10 * sin(i[0]) + yPos
+
+>>>>>>> origin/master
         i[1] -= 1
 
         if i[1] <= 0:
