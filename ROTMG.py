@@ -20,8 +20,8 @@ class Character:
         self.rightCounter = 0
         self.upCounter = 0
         self.downCounter = 0
-        self.lastDirection = "right"
-        self.characterSprite = pygame.image.load("ArcherWalkRight1.png").convert_alpha()
+        self.lastDirection = "down"
+        self.characterSprite = pygame.image.load("ArcherNeutralDown.png").convert_alpha()
 
     #def __init__(self, hp, mp, deff, vit, wis, dex, att, spd):
     #    self.hp = hp;
@@ -37,9 +37,10 @@ class Character:
     #    pass
 
     def leftWalk(self):
-        
+
         self.lastDirection = "left"
-        
+
+
         self.leftCounter += 1
         if self.leftCounter < 10:
             self.characterSprite = pygame.image.load("ArcherWalkLeft1.png").convert_alpha()
@@ -47,11 +48,11 @@ class Character:
             self.characterSprite = pygame.image.load("ArcherWalkLeft2.png").convert_alpha()
         else:
             self.leftCounter = 0
-            
+
     def rightWalk(self):
-        
+
         self.lastDirection = "right"
-        
+
         self.rightCounter += 1
         if self.rightCounter < 10:
             self.characterSprite = pygame.image.load("ArcherWalkRight1.png").convert_alpha()
@@ -59,11 +60,11 @@ class Character:
             self.characterSprite = pygame.image.load("ArcherWalkRight2.png").convert_alpha()
         else:
             self.rightCounter = 0
-            
+
     def upWalk(self):
-        
+
         self.lastDirection = "up"
-        
+
         self.upCounter += 1
         if self.upCounter < 10:
             self.characterSprite = pygame.image.load("ArcherWalkUp1.png").convert_alpha()
@@ -71,11 +72,11 @@ class Character:
             self.characterSprite = pygame.image.load("ArcherWalkUp2.png").convert_alpha()
         else:
             self.upCounter = 0
-            
+
     def downWalk(self):
-        
+
         self.lastDirection = "down"
-        
+
         self.downCounter += 1
         if self.downCounter < 10:
             self.characterSprite = pygame.image.load("ArcherWalkDown1.png").convert_alpha()
@@ -85,7 +86,7 @@ class Character:
             self.downCounter = 0
 
     def leftShoot(self):
-        
+
         self.lastDirection = "left"
 
         self.leftCounter += 1
@@ -97,7 +98,7 @@ class Character:
             self.leftCounter = 0
 
     def rightShoot(self):
-        
+
         self.lastDirection = "right"
 
         self.rightCounter += 1
@@ -109,7 +110,7 @@ class Character:
             self.rightCounter = 0
 
     def upShoot(self):
-        
+
         self.lastDirection = "up"
 
         self.upCounter += 1
@@ -121,7 +122,7 @@ class Character:
             self.upCounter = 0
 
     def downShoot(self):
-        
+
         self.lastDirection = "down"
 
         self.downCounter += 1
@@ -131,7 +132,7 @@ class Character:
             self.characterSprite = pygame.image.load("ArcherShootDown2.png").convert_alpha()
         else:
             self.downCounter = 0
-            
+
     def release(self):
         self.leftCounter = 0
         self.rightCounter = 0
@@ -148,11 +149,11 @@ class Character:
 
         elif self.lastDirection == "up":
 
-            self.characterSprite = pygame.image.load("ArcherWalkUp1.png").convert_alpha()
+            self.characterSprite = pygame.image.load("ArcherNeutralUp.png").convert_alpha()
 
         elif self.lastDirection == "down":
 
-            self.characterSprite = pygame.image.load("ArcherWalkDown1.png").convert_alpha()
+            self.characterSprite = pygame.image.load("ArcherNeutralDown.png").convert_alpha()
 
 red          = (255,  0,  0)
 green        = (  0,255,  0)
@@ -183,7 +184,7 @@ mapList = [line.rstrip('\n') for line in map_]
 map_.close()
 
 for i in range(0, len(mapList)):
-        
+
     mapList[i] = list(mapList[i])
 
 mapWidth  = len(mapList) * tileLength
@@ -221,20 +222,30 @@ while not ended:
     keyDown = pygame.key.get_pressed()
 
     if keyDown[pygame.K_w]:
-            
+
         yPos = max(0, yPos - 5)
-            
+
+        for i in projectileList:
+            i[5] = i[5] - 5
     if keyDown[pygame.K_s]:
 
         yPos = min(mapHeight, yPos + 5)
-    
+
+        for i in projectileList:
+            i[5] = i[5] + 5
     if keyDown[pygame.K_a]:
-            
+
         xPos = max(0, xPos - 5)
-            
+
+        for i in projectileList:
+            i[4] = i[4] - 5
+
     if keyDown[pygame.K_d]:
-        
+
         xPos = min(mapWidth, xPos + 5)
+
+        for i in projectileList:
+            i[4] = i[4] + 5
 
     if keyDown[pygame.K_SPACE]:
 
@@ -265,16 +276,20 @@ while not ended:
             if yLength < 0:
 
                 angle = 2 * pi - angle
-            
+
             lifespan = 30
 
             x = 300
             y = 300
+            xOffset = 0
+            yOffset = 0
 
             projectile.append(angle)
             projectile.append(lifespan)
             projectile.append(x)
             projectile.append(y)
+            projectile.append(xOffset)
+            projectile.append(yOffset)
 
             projectileList.append(projectile)
 
@@ -282,8 +297,10 @@ while not ended:
 
         pygame.draw.circle(screen, red, (int(i[2]), int(i[3])), 8)
 
-        i[2] -= 10 * cos(i[0])
-        i[3] -= 10 * sin(i[0])
+        i[2] -= 10 * cos(i[0]) + i[4]
+        i[3] -= 10 * sin(i[0]) + i[5]
+        i[4] = 0
+        i[5] = 0
 
         i[1] -= 1
 
@@ -298,7 +315,7 @@ while not ended:
         if mouseY - 300 >= abs(mouseX - 300):
 
             character.downShoot()
-        
+
         elif mouseX - 300 >= abs(mouseY - 300):
 
             character.rightShoot()
@@ -333,13 +350,13 @@ while not ended:
 
     pygame.draw.rect(screen, grey, sidebar)
     screen.blit(character.characterSprite, characterXY)
-                    
+
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
 
             ended = True
-        
+
     pygame.display.flip()
 
     sleep(1.0/60)
