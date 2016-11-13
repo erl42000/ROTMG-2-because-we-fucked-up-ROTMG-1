@@ -219,9 +219,9 @@ sidebar      = 600, 0, 200, 800
 healthbar    = 610, 150, 180, 20
 character    = Character()
 characterXY  = 275, 275
-characterXYHitbox  = 285, 285, 30, 30
+characterXYHitbox  = 275, 275, 50, 50
 enemyXY = 100, 100
-enemyXYHitbox = 90, 90, 90, 90
+enemyXYHitbox = 100, 100, 100, 100
 
 tileLength   = 50
 
@@ -237,7 +237,6 @@ projectileList  = []
 enemySprite1 = pygame.image.load("Occulusion1.PNG").convert_alpha()
 enemySprite2 = pygame.image.load("Occulusion2.PNG").convert_alpha()
 enemySprite3 = pygame.image.load("Occulusion3.PNG").convert_alpha()
-enemySprite4 = pygame.image.load("Occulusion2.PNG").convert_alpha()
 currentEnemySprite = enemySprite1
 projectileSprite = pygame.image.load("Arrow.PNG").convert_alpha()
 
@@ -262,6 +261,7 @@ step = 0
 while not ended:
 
     screen.fill(black)
+    collision.fill(white)
 
     for x in range(-6,7):
 
@@ -356,23 +356,31 @@ while not ended:
 
     for i in projectileList:
 
-        if i.lifespan <= 25:
-        
-            screen.blit(pygame.transform.rotate(projectileSprite, (i.angle - 3*pi/4) * (-180/pi)), (int(i.x - 30), int(i.y - 30)))
+        hitbox = pygame.Rect(i.x,i.y,5,5)
 
-        pygame.draw.circle(collision, red, (int(i.x), int(i.y)), 8)
-
-        i.x -= 10 * cos(i.angle) + i.xOffset
-        i.y -= 10 * sin(i.angle) + i.yOffset
-        i.xOffset = 0
-        i.yOffset = 0
-
-        i.lifespan -= 1
-
-        if i.lifespan <= 0:
+        if hitbox.colliderect(enemyXYHitbox) == True:
 
             projectileList.remove(i)
 
+        else:
+
+            if i.lifespan <= 25:
+            
+                screen.blit(pygame.transform.rotate(projectileSprite, (i.angle - 3*pi/4) * (-180/pi)), (int(i.x - 30), int(i.y - 30)))
+
+            pygame.draw.rect(collision, red, (int(i.x), int(i.y), 5, 5))
+
+            i.x -= 10 * cos(i.angle) + i.xOffset
+            i.y -= 10 * sin(i.angle) + i.yOffset
+            i.xOffset = 0
+            i.yOffset = 0
+
+            i.lifespan -= 1
+
+            if i.lifespan <= 0:
+
+                projectileList.remove(i)
+            
     if pygame.mouse.get_pressed()[0]:
 
         mouseX, mouseY = pygame.mouse.get_pos()
@@ -435,7 +443,7 @@ while not ended:
 
     elif frame % 60 == 45:
 
-        currentEnemySprite = enemySprite4
+        currentEnemySprite = enemySprite2
 
     pygame.draw.rect(screen, grey, sidebar)
     pygame.draw.rect(screen, red, healthbar)
