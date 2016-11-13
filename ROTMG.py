@@ -36,7 +36,7 @@ class Character:
     #    pass
 
     def leftWalk(self):
-        
+
         self.leftCounter += 1
         if self.leftCounter < 10:
             self.characterSprite = pygame.image.load("ArcherWalkLeft1.png").convert_alpha()
@@ -44,9 +44,9 @@ class Character:
             self.characterSprite = pygame.image.load("ArcherWalkLeft2.png").convert_alpha()
         else:
             self.leftCounter = 0
-            
+
     def rightWalk(self):
-        
+
         self.rightCounter += 1
         if self.rightCounter < 10:
             self.characterSprite = pygame.image.load("ArcherWalkRight1.png").convert_alpha()
@@ -54,9 +54,9 @@ class Character:
             self.characterSprite = pygame.image.load("ArcherWalkRight2.png").convert_alpha()
         else:
             self.rightCounter = 0
-            
+
     def upWalk(self):
-        
+
         self.upCounter += 1
         if self.upCounter < 10:
             self.characterSprite = pygame.image.load("ArcherWalkUp1.png").convert_alpha()
@@ -64,9 +64,9 @@ class Character:
             self.characterSprite = pygame.image.load("ArcherWalkUp2.png").convert_alpha()
         else:
             self.upCounter = 0
-            
+
     def downWalk(self):
-        
+
         self.downCounter += 1
         if self.downCounter < 10:
             self.characterSprite = pygame.image.load("ArcherWalkDown1.png").convert_alpha()
@@ -114,7 +114,7 @@ class Character:
             self.characterSprite = pygame.image.load("ArcherShootDown2.png").convert_alpha()
         else:
             self.downCounter = 0
-            
+
     def release(self):
         self.leftCounter = 0
         self.rightCounter = 0
@@ -152,7 +152,7 @@ mapList = [line.rstrip('\n') for line in map_]
 map_.close()
 
 for i in range(0, len(mapList)):
-        
+
     mapList[i] = list(mapList[i])
 
 mapWidth  = len(mapList) * tileLength
@@ -192,21 +192,21 @@ while not ended:
     if keyDown[pygame.K_w]:
 
         character.upWalk()
-            
+
         yPos = max(0, yPos - 5)
-            
+
     if keyDown[pygame.K_s]:
 
         character.downWalk()
 
         yPos = min(mapHeight, yPos + 5)
-    
+
     if keyDown[pygame.K_a]:
 
         character.leftWalk()
-            
+
         xPos = max(0, xPos - 5)
-            
+
     if keyDown[pygame.K_d]:
 
         character.rightWalk()
@@ -224,7 +224,7 @@ while not ended:
         if mouseY - 300 >= abs(mouseX - 300):
 
             character.downShoot()
-        
+
         elif mouseX - 300 >= abs(mouseY - 300):
 
             character.rightShoot()
@@ -258,7 +258,7 @@ while not ended:
             if yLength < 0:
 
                 angle = 2 * pi - angle
-            
+
             lifespan = 30
 
             x = 300
@@ -275,8 +275,8 @@ while not ended:
 
         pygame.draw.circle(screen, red, (int(i[2]), int(i[3])), 8)
 
-        i[2] -= 10 * cos(i[0])
-        i[3] -= 10 * sin(i[0])
+        i[2] -= 10 * cos(i[0]) + (((x + 6) * tileLength) - (xPos % 50)
+        i[3] -= 10 * sin(i[0]) + (((x + 6) * tileLength) - (yPos % 50)
 
         i[1] -= 1
 
@@ -286,7 +286,7 @@ while not ended:
 
     pygame.draw.rect(screen, grey, sidebar)
     screen.blit(character.characterSprite, characterXY)
-                    
+
     for event in pygame.event.get():
 
         if event.type == pygame.QUIT:
