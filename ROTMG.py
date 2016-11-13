@@ -275,8 +275,8 @@ while not ended:
 
         pygame.draw.circle(screen, red, (int(i[2]), int(i[3])), 8)
 
-        i[2] -= 10 * cos(i[0]) + (((x + 6) * tileLength) - (xPos % 50)
-        i[3] -= 10 * sin(i[0]) + (((x + 6) * tileLength) - (yPos % 50)
+        i[2] -= 10 * cos(i[0]) + xPos
+        i[3] -= 10 * sin(i[0]) + yPos
 
         i[1] -= 1
 
