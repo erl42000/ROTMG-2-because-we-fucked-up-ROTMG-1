@@ -11,6 +11,8 @@ pygame.init()
 pygame.font.init()
 
 screen       = pygame.display.set_mode((800, 600))
+collision = pygame.Surface((800,600), pygame.SRCALPHA)
+collision.fill((255,255,255,128))
 
 class Character:
 
@@ -32,9 +34,6 @@ class Character:
     #    self.dex = dex;
     #    self.att = att;
     #    self.spd = spd;
-
-    #def shoot():
-    #    pass
 
     def leftWalk(self):
 
@@ -179,6 +178,9 @@ lastClick    = -60
 
 projectileList  = []
 
+
+projectileImage = pygame.image.load("Arrow.PNG").convert_alpha()
+
 map_ = open("ROTMG_Map.txt", "r")
 mapList = [line.rstrip('\n') for line in map_]
 map_.close()
@@ -221,31 +223,72 @@ while not ended:
 
     keyDown = pygame.key.get_pressed()
 
+    keycount = 0
+
     if keyDown[pygame.K_w]:
-
-        yPos = max(0, yPos - 5)
-
-        for i in projectileList:
-            i[5] = i[5] - 5
-    if keyDown[pygame.K_s]:
-
-        yPos = min(mapHeight, yPos + 5)
-
-        for i in projectileList:
-            i[5] = i[5] + 5
+        keycount = keycount + 1
     if keyDown[pygame.K_a]:
-
-        xPos = max(0, xPos - 5)
-
-        for i in projectileList:
-            i[4] = i[4] - 5
-
+        keycount = keycount + 1
+    if keyDown[pygame.K_s]:
+        keycount = keycount + 1
     if keyDown[pygame.K_d]:
+        keycount = keycount + 1
 
-        xPos = min(mapWidth, xPos + 5)
+    if keycount == 1 or 3:
+        if keyDown[pygame.K_w]:
 
-        for i in projectileList:
-            i[4] = i[4] + 5
+            yPos = max(0, yPos - 5)
+
+            for i in projectileList:
+                i[5] = i[5] - 5
+        if keyDown[pygame.K_s]:
+
+            yPos = min(mapHeight, yPos + 5)
+
+            for i in projectileList:
+                i[5] = i[5] + 5
+        if keyDown[pygame.K_a]:
+
+            xPos = max(0, xPos - 5)
+
+            for i in projectileList:
+                i[4] = i[4] - 5
+
+        if keyDown[pygame.K_d]:
+
+            xPos = min(mapWidth, xPos + 5)
+
+            for i in projectileList:
+                i[4] = i[4] + 5
+    else:
+        if keyDown[pygame.K_s] and keydown[pygame.K_a]:
+            xPos = min(mapWidth, xPos - (5/sqrt(2)))
+            yPos = min(mapWidth, yPos - (5/sqrt(2)))
+
+            for i in projectileList:
+                i[4] = i[4] - (5/sqrt(2))
+                i[5] = i[5] - (5/sqrt(2))
+        if keydown[pygame.K_s] and keydown[pygame.K_d]:
+            xPos = min(mapWidth, xPos + (5/sqrt(2)))
+            yPos = min(mapWidth, yPos - (5/sqrt(2)))
+
+            for i in projectileList:
+                i[4] = i[4] + (5/sqrt(2))
+                i[5] = i[5] - (5/sqrt(2))
+        if keydown[pygame.K_w] and keydown[pygame.K_a]:
+            xPos = min(mapWidth, xPos - (5/sqrt(2)))
+            yPos = min(mapWidth, yPos + (5/sqrt(2)))
+
+            for i in projectileList:
+                i[4] = i[4] - (5/sqrt(2))
+                i[5] = i[5] + (5/sqrt(2))
+        if keydown[pygame.K_w] and keydown[pygame.K_d]:
+            xPos = min(mapWidth, xPos + (5/sqrt(2)))
+            yPos = min(mapWidth, yPos + (5/sqrt(2)))
+
+            for i in projectileList:
+                i[4] = i[4] + (5/sqrt(2))
+                i[5] = i[5] + (5/sqrt(2))
 
     if keyDown[pygame.K_SPACE]:
 
@@ -295,7 +338,11 @@ while not ended:
 
     for i in projectileList:
 
-        pygame.draw.circle(screen, red, (int(i[2]), int(i[3])), 8)
+        if i[1] <= 25:
+        
+            screen.blit(pygame.transform.rotate(projectileImage, (i[0] - 3*pi/4) * (-180/pi)), (int(i[2] - 30), int(i[3] - 30)))
+
+        pygame.draw.circle(collision, red, (int(i[2]), int(i[3])), 8)
 
         i[2] -= 10 * cos(i[0]) + i[4]
         i[3] -= 10 * sin(i[0]) + i[5]
@@ -349,6 +396,7 @@ while not ended:
         character.release()
 
     pygame.draw.rect(screen, grey, sidebar)
+    pygame.draw.rect(collision, grey, (310, 310, 30, 30))
     screen.blit(character.characterSprite, characterXY)
 
     for event in pygame.event.get():
