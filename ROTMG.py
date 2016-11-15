@@ -14,13 +14,13 @@ screen = pygame.display.set_mode((800, 600))
 collision = pygame.Surface((800,600), pygame.SRCALPHA)
 collision.fill((255,255,255,128))
 
-
 red          = (255,  0,  0)
 green        = (  0,255,  0)
 blue         = (  0,  0,255)
 white        = (255,255,255)
 black        = (  0, 0,  0)
 grey         = (127,127,127)
+
 class Character:
 
     def __init__(self):
@@ -31,16 +31,6 @@ class Character:
         self.downCounter = 0
         self.lastDirection = "down"
         self.characterSprite = pygame.image.load("ArcherNeutralDown.png").convert_alpha()
-
-    #def __init__(self, hp, mp, deff, vit, wis, dex, att, spd):
-    #    self.hp = hp;
-    #    self.mp = mp;
-    #    self.deff = deff;
-    #    self.vit = vit;
-    #    self.wis = wis;
-    #    self.dex = dex;
-    #    self.att = att;
-    #    self.spd = spd;
 
     def leftWalk(self):
 
@@ -205,7 +195,7 @@ class Character:
 
 class Projectile():
 
-    def __init__(self, angle, lifespan, x, y, xOffset, yOffset,speed,damage):
+    def __init__(self, angle, lifespan, x, y, xOffset, yOffset, speed, damage, image):
 
         self.angle    = angle
         self.lifespan = lifespan
@@ -215,33 +205,36 @@ class Projectile():
         self.yOffset  = yOffset
         self.speed    = speed
         self.damage   = damage
+        self.image    = image
 
-celestialTile = pygame.image.load("CelestialTile1.png").convert_alpha()
-blackTile = pygame.image.load("BlackTile.png").convert_alpha()
+celestialTile = pygame.image.load("CelestialTile.png").convert_alpha()
+blackTile     = pygame.image.load("BlackTile.png").convert_alpha()
 
-tileList     = [blackTile, celestialTile]
+tileList      = [blackTile, celestialTile]
 
-enemyHealth  = 8000
-playerHealth = 600
+enemyHealth   = 12000
+playerHealth  = 600
 
-sidebar      = [600, 0, 200, 800]
-character    = Character()
-characterXY  = [275, 275]
+sidebar       = [600, 0, 200, 800]
+character     = Character()
+characterXY   = [275, 275]
 characterXYHitbox  = [275, 275, 50, 50]
 enemyXY = [250, 50]
 enemyXYHitbox = [250, 50, 100, 100]
 
-enemyXOffset = 0
-enemyYOffset = 0
+enemyXOffset  = 0
+enemyYOffset  = 0
 
-tileLength   = 50
+bulletAngle = 0
 
-centerX      = 300
-centerY      = 300
+tileLength    = 50
 
-frame        = 0
-shotDelay    = 15
-lastClick    = -60
+centerX       = 300
+centerY       = 300
+
+frame         = 0
+shotDelay     = 15
+lastClick     = -60
 
 playerProjectileList  = []
 enemyProjectileList  = []
@@ -282,7 +275,7 @@ while not ended:
 
             if (xPos / 50) + x < 0 or (yPos / 50) + y < 0:
 
-                pygame.draw.rect(screen, black, (((x + 6) * tileLength) - (xPos % 50), (((y + 6) * tileLength) - (yPos % 50)), +  tileLength, tileLength))
+                pygame.draw.rect(screen, black, (((x + 6) * tileLength) - (xPos % 50), (((y + 6) * tileLength) - (yPos % 50)), tileLength, tileLength))
 
             else:
 
@@ -292,111 +285,82 @@ while not ended:
 
                 except IndexError:
 
-                    pygame.draw.rect(screen, black, (((x + 6) * tileLength) - (xPos % 50), (((y + 6) * tileLength) - (yPos % 50)), +  tileLength, tileLength))
+                    pygame.draw.rect(screen, black, (((x + 6) * tileLength) - (xPos % 50), (((y + 6) * tileLength) - (yPos % 50)), tileLength, tileLength))
 
     keyDown = pygame.key.get_pressed()
 
+    if playerHealth > 0:
+    
+        if keyDown[pygame.K_w]:
+
+            yPos = max(0, yPos - 5)
+
+            if yPos <= 0:
+
+                enemyYOffset = 0
+
+            else:
+
+                for i in playerProjectileList:
+                    i.yOffset = i.yOffset - 5
+                enemyYOffset -= 5
+
+                for i in enemyProjectileList:
+                    i.yOffset = i.yOffset - 5
 
 
+        if keyDown[pygame.K_s]:
 
-    for i in enemyProjectileList:
-        hitbox = pygame.Rect(i.x, i.y, 5, 5)
+            yPos = min(mapHeight, yPos + 5)
 
-        if hitbox.colliderect(characterXYHitbox) == True and playerHealth > 0:
+            if yPos >= len(mapList[0]) * 50:
 
-            playerHealth -= i[8]
+                enemyYOffset = 0
 
-            enemyProjectileList.remove(i)
+            else:
 
-        else:
+                for i in playerProjectileList:
+                    i.yOffset = i.yOffset + 5
+                enemyYOffset += 5
 
-            if i.lifespan > 0:
-
-                screen.blit(pygame.transform.rotate(projectileSprite, (i.angle - 3 * pi/4) * (-180/pi)), (int(i.x - 30), int(i.y - 30)))
-
-            pygame.draw.rect(collision, red, (int(i.x), int(i.y), 5, 5))
-
-            i.x -= i.speed * cos(i.angle) + i.xOffset
-            i.y -= i.speed * sin(i.angle) + i.yOffset
-            i.xOffset = 0
-            i.yOffset = 0
-
-            i.lifespan -= 1
-
-            if i.lifespan <= 0:
-
-                enemyProjectileList.remove(i)
-
-    if keyDown[pygame.K_w]:
-
-        yPos = max(0, yPos - 5)
-
-        if yPos <= 0:
-
-            enemyYOffset = 0
-
-        else:
-
-            for i in playerProjectileList:
-                i.yOffset = i.yOffset - 5
-            enemyYOffset -= 5
-
-            for i in enemyProjectileList:
-                i.yOffset = i.yOffset - 5
+                for i in enemyProjectileList:
+                    i.yOffset = i.yOffset + 5
 
 
-    if keyDown[pygame.K_s]:
+        if keyDown[pygame.K_a]:
 
-        yPos = min(mapHeight, yPos + 5)
+            xPos = max(0, xPos - 5)
 
-        if yPos >= len(mapList[0]) * 50:
+            if xPos <= 0:
 
-            enemyYOffset = 0
+                enemyXOffset = 0
 
-        else:
+            else:
 
-            for i in playerProjectileList:
-                i.yOffset = i.yOffset + 5
-            enemyYOffset += 5
+                for i in playerProjectileList:
+                    i.xOffset = i.xOffset - 5
+                enemyXOffset -= 5
 
-            for i in enemyProjectileList:
-                i.yOffset = i.yOffset + 5
-
-
-    if keyDown[pygame.K_a]:
-
-        xPos = max(0, xPos - 5)
-
-        if xPos <= 0:
-
-            enemyXOffset = 0
-
-        else:
-
-            for i in playerProjectileList:
-                i.xOffset = i.xOffset - 5
-            enemyXOffset -= 5
-
-            for i in enemyProjectileList:
-                i.xOffset = i.xOffset - 5
+                for i in enemyProjectileList:
+                    i.xOffset = i.xOffset - 5
 
 
-    if keyDown[pygame.K_d]:
+        if keyDown[pygame.K_d]:
 
-        xPos = min(mapWidth, xPos + 5)
+            xPos = min(mapWidth, xPos + 5)
 
-        if xPos >= len(mapList) * 50:
+            if xPos >= len(mapList) * 50:
 
-            enemyXOffset = 0
+                enemyXOffset = 0
 
-        else:
+            else:
 
-            for i in playerProjectileList:
-                i.xOffset = i.xOffset + 5
-            enemyXOffset += 5
+                for i in playerProjectileList:
+                    i.xOffset = i.xOffset + 5
+                enemyXOffset += 5
 
-            for i in enemyProjectileList:
-                i.xOffset = i.xOffset + 5
+                for i in enemyProjectileList:
+                    i.xOffset = i.xOffset + 5
 
 
     if keyDown[pygame.K_SPACE]:
@@ -435,39 +399,71 @@ while not ended:
             yOffset = 0
             speed = 10
             damage = 200
+            image = projectileSprite
 
-            projectile = Projectile(angle, lifespan, x, y, xOffset, yOffset, speed, damage)
+            projectile = Projectile(angle, lifespan, x, y, xOffset, yOffset, speed, damage, image)
 
             playerProjectileList.append(projectile)
 
     for i in playerProjectileList:
 
-        hitbox = pygame.Rect(i.x, i.y, 5, 5)
+        if playerHealth > 0:
 
-        if hitbox.colliderect(enemyXYHitbox) == True and enemyHealth > 0:
+            hitbox = pygame.Rect(i.x, i.y, 5, 5)
 
-            enemyHealth -= randint(175, 225)
+            if hitbox.colliderect(enemyXYHitbox) == True and enemyHealth > 0:
 
-            playerProjectileList.remove(i)
-
-        else:
-
-            if i.lifespan <= 25:
-
-                screen.blit(pygame.transform.rotate(projectileSprite, (i.angle - 3 * pi/4) * (-180/pi)), (int(i.x - 30), int(i.y - 30)))
-
-            pygame.draw.rect(collision, red, (int(i.x), int(i.y), 5, 5))
-
-            i.x -= i.speed * cos(i.angle) + i.xOffset
-            i.y -= i.speed * sin(i.angle) + i.yOffset
-            i.xOffset = 0
-            i.yOffset = 0
-
-            i.lifespan -= 1
-
-            if i.lifespan <= 0:
+                enemyHealth -= randint(i.damage - 25, i.damage + 25)
 
                 playerProjectileList.remove(i)
+
+            else:
+
+                if i.lifespan <= 25:
+
+                    screen.blit(pygame.transform.rotate(i.image, (i.angle - 3 * pi/4) * (-180/pi)), (int(i.x - 30), int(i.y - 30)))
+
+                pygame.draw.rect(collision, red, (int(i.x), int(i.y), 5, 5))
+
+                i.x -= i.speed * cos(i.angle) + i.xOffset
+                i.y -= i.speed * sin(i.angle) + i.yOffset
+                i.xOffset = 0
+                i.yOffset = 0
+
+                i.lifespan -= 1
+
+                if i.lifespan <= 0:
+
+                    playerProjectileList.remove(i)
+
+    for i in enemyProjectileList:
+
+        if enemyHealth > 0:
+
+            hitbox = pygame.Rect(i.x, i.y, 5, 5)
+
+            if hitbox.colliderect(characterXYHitbox) == True and playerHealth > 0:
+
+                playerHealth -= randint(i.damage - 25, i.damage + 25)
+
+                enemyProjectileList.remove(i)
+
+            else:
+
+                screen.blit(pygame.transform.rotate(i.image, (i.angle - 3 * pi/4) * (-180/pi)), (int(i.x - 30), int(i.y - 30)))
+
+                pygame.draw.rect(collision, red, (int(i.x), int(i.y), 5, 5))
+
+                i.x -= i.speed * cos(i.angle) + i.xOffset
+                i.y -= i.speed * sin(i.angle) + i.yOffset
+                i.xOffset = 0
+                i.yOffset = 0
+
+                i.lifespan -= 1
+
+                if i.lifespan <= 0:
+
+                    enemyProjectileList.remove(i)
 
     if pygame.mouse.get_pressed()[0]:
 
@@ -525,6 +521,72 @@ while not ended:
 
         currentEnemySprite = enemySprite2
 
+    if frame % 30 == 0:
+
+        if playerHealth > 0:
+
+            xLength = centerX - enemyXY[0] - 50
+            yLength = centerY - enemyXY[1] - 50
+            distance = hypot(xLength, yLength)
+
+            try:
+
+                angle = acos(xLength / distance)
+
+            except ZeroDivisionError:
+
+                angle = 0
+
+            if yLength < 0:
+
+                angle = 2 * pi - angle
+
+            angle = angle + pi
+
+            lifespan = 75
+
+            x = enemyXY[0] + 50
+            y = enemyXY[1] + 50
+            xOffset = 0
+            yOffset = 0
+            speed = 5
+            damage = 120
+            image = pygame.image.load("MediumEnergy.png").convert_alpha()
+
+            projectile = Projectile(angle, lifespan, x, y, xOffset, yOffset, speed, damage, image)
+
+            enemyProjectileList.append(projectile)
+
+    if frame % 20 == 0:
+
+        lifespan = 175
+
+        x = enemyXY[0] + 75
+        y = enemyXY[1] + 75
+        xOffset = 0
+        yOffset = 0
+        speed = 3
+        damage = 100
+        image = pygame.image.load("SmallEnergy.png").convert_alpha()
+
+        projectile = Projectile(bulletAngle, lifespan, x, y, xOffset, yOffset, speed, damage, image)
+
+        enemyProjectileList.append(projectile)
+
+        projectile = Projectile(bulletAngle + ((1/2.0) * pi), lifespan, x, y, xOffset, yOffset, speed, damage, image)
+
+        enemyProjectileList.append(projectile)
+
+        projectile = Projectile(bulletAngle + (pi), lifespan, x, y, xOffset, yOffset, speed, damage, image)
+
+        enemyProjectileList.append(projectile)
+
+        projectile = Projectile(bulletAngle + ((3 / 2.0) * pi), lifespan, x, y, xOffset, yOffset, speed, damage, image)
+
+        enemyProjectileList.append(projectile)
+
+        bulletAngle += (pi/3)
+
     enemyXY[0] -= enemyXOffset
     enemyXY[1] -= enemyYOffset
     enemyXYHitbox[0] -= enemyXOffset
@@ -534,13 +596,20 @@ while not ended:
     enemyYOffset = 0
 
     if playerHealth > 0:
+        
         screen.blit(character.characterSprite, characterXY)
         pygame.draw.rect(collision, grey, characterXYHitbox)
+        
     if enemyHealth > 0:
+        
         screen.blit(currentEnemySprite, enemyXY)
         pygame.draw.rect(collision, grey, enemyXYHitbox)
+        
     pygame.draw.rect(screen, grey, sidebar)
+    pygame.draw.rect(screen, black, ([605, 145, 190, 30]))
+    
     if playerHealth > 0:
+        
         pygame.draw.rect(screen, red, healthbar)
 
     for event in pygame.event.get():
